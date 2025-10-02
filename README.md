@@ -1,7 +1,10 @@
-This is a prototype project that integrates Apache Beam with Prefect on Google Cloud Platform (GCP). This project serves as a foundation for building data processing pipelines using modern orchestration and data processing tools.
+# Prefect-GCP
 
-### Project Structure
+This is a prototype project that integrates [Apache Beam](https://beam.apache.org/get-started/quickstart/python/) with [Prefect](https://docs.prefect.io/v3/get-started) on [Google Cloud](https://console.cloud.google.com/). The project is designed to serve as a foundation for building data processing pipelines using modern orchestration and data processing tools.
 
+---
+
+## Project Structure
 ```
 prefect-gcp
 ├── src
@@ -31,7 +34,7 @@ prefect-gcp
 └── README.md
 ```
 
-### Installation
+## Installation
 
 To set up the project, clone the repository and install the required dependencies:
 
@@ -49,11 +52,11 @@ To set up the project, clone the repository and install the required dependencie
    pip-sync requirements.txt
    ```
 
-### Configuration
+## Configuration
 
 Configuration settings are managed using YAML files located in the `configs` directory. You can modify the `development.yaml`, `production.yaml`, and `staging.yaml` files to suit your environment.
 
-### Usage
+## Usage
 
 To run the sample pipeline, execute the following command:
 
@@ -61,10 +64,10 @@ To run the sample pipeline, execute the following command:
 python pipelines/sample_pipeline.py
 ```
 
-### Contributing
+## Contributing
 
 Contributions are welcome! Please submit a pull request or open an issue for any enhancements or bug fixes.
 
-### License
+## License
 
 This project is licensed under the MIT License. See the LICENSE file for more details.
