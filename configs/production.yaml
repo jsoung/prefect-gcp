@@ -1,0 +1,16 @@
+project: prefect-gcp
+environment: production
+settings:
+  gcp:
+    project_id: your-gcp-project-id
+    region: your-gcp-region
+    bucket_name: your-gcs-bucket-name
+  prefect:
+    api_url: https://api.prefect.io
+    flow_run_name: "production-flow-run"
+    storage:
+      type: "gcs"
+      bucket: your-gcs-bucket-name
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

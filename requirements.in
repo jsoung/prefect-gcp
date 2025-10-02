@@ -1,0 +1,9 @@
+apache-beam[gcp]
+prefect
+git+https://github.com/jsoung/mlp-conf.git
+google-cloud-storage
+google-cloud-bigquery
+google-cloud-pubsub
+pandas
+numpy
+pytest
