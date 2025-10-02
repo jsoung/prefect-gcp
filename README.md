@@ -8,26 +8,18 @@ This is a prototype project that integrates [Apache Beam](https://beam.apache.or
 ```
 prefect-gcp
 ├── src
-│   ├── prefect_gcp
-│   │   ├── beam
-│   │   │   ├── __init__.py
-│   │   │   └── pipeline.py
-│   │   ├── data
-│   │   │   ├── __init__.py
-│   │   │   └── process.py
-│   │   ├── dataflow
-│   │   │   ├── __init__.py
-│   │   │   └── runner.py
-│   │   ├── flows
-│   │   │   ├── __init__.py
-│   │   │   └── prefect.py
-│   │   ├── utils
-│   │   │   ├── __init__.py
-│   │   │   └── helpers.py
-│   │   └── __init__.py
+│   ├── beam
+│   │   └── pipeline.py
+│   ├── data
+│   │   └── process.py
+│   ├── dataflow
+│   │   └── runner.py
+│   ├── flows
+│   │   └── prefect.py
+│   ├── utils
+│   │   └── helpers.py
 ├── tests
 │   ├── unit
-│   │   ├── __init__.py
 │   │   └── test_process.py
 │   ├── scripts
 │   │   ├── test_local_file.py
