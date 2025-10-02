@@ -9,28 +9,38 @@ This is a prototype project that integrates [Apache Beam](https://beam.apache.or
 prefect-gcp
 ├── src
 │   ├── prefect_gcp
+│   │   ├── beam
+│   │   │   ├── __init__.py
+│   │   │   └── pipeline.py
+│   │   ├── data
+│   │   │   ├── __init__.py
+│   │   │   └── process.py
+│   │   ├── dataflow
+│   │   │   ├── __init__.py
+│   │   │   └── runner.py
 │   │   ├── flows
-│   │   │   └── beam_pipeline.py
-│   │   ├── tasks
-│   │   │   ├── beam_tasks.py
-│   │   │   └── gcp_tasks.py
-│   │   ├── config
-│   │   │   └── settings.py
+│   │   │   ├── __init__.py
+│   │   │   └── prefect.py
 │   │   ├── utils
+│   │   │   ├── __init__.py
 │   │   │   └── helpers.py
-│   │   └── pipelines
-│   │       └── sample_pipeline.py
+│   │   └── __init__.py
+├── tests
+│   ├── unit
+│   │   ├── __init__.py
+│   │   └── test_process.py
+│   ├── scripts
+│   │   ├── test_local_file.py
+│   │   └── test_gcs_file.py
 ├── configs
 │   ├── development.yaml
 │   ├── production.yaml
 │   └── staging.yaml
-├── docker
-│   ├── Dockerfile
-│   └── docker-compose.yml
 ├── requirements.in
 ├── requirements.txt
-├── setup.py
+├── tox.ini
 ├── pyproject.toml
+├── LICENSE
 └── README.md
 ```
 
