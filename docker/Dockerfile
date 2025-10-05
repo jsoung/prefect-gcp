@@ -1,18 +1,24 @@
-FROM python:3.9-slim
+# Official Google-hosted Beam SDK harness image for Dataflow custom containers
+FROM apache/beam_python3.12_sdk:2.68.0
 
-# Set the working directory
-WORKDIR /app
+# Set working directory inside the container
+WORKDIR /prefect-gcp
 
-# Copy the requirements file
-COPY requirements.txt .
+# Copy dependency metadata from the project root
+COPY requirements.txt pyproject.toml VERSION.txt project.cfg ./
 
-# Install the dependencies
+# Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy the source code into the container
+# Copy your source code
 COPY src/ ./src/
-COPY pipelines/ ./pipelines/
-COPY configs/ ./configs/
 
-# Set the entry point for the container
-CMD ["python", "-m", "prefect_gcp.flows.beam_pipeline"]
+# Install your code in editable mode (optional)
+RUN pip install -e .
+
+# Optional: print environment info for debugging
+RUN python -V && pip list
+
+# No entrypoint needed — Dataflow handles that
+ENTRYPOINT []
+CMD []

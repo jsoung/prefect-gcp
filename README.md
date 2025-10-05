@@ -1,6 +1,6 @@
 # Prefect-GCP
 
-This is a prototype project that integrates [Apache Beam](https://beam.apache.org/get-started/quickstart/python/) with [Prefect](https://docs.prefect.io/v3/get-started) on [Google Cloud](https://console.cloud.google.com/). The project is designed to serve as a foundation for building data processing pipelines using modern orchestration and data processing tools.
+This is an experiment to develop a project with reasonable complexity using [GitHub Copilot](https://github.com/features/copilot). The models used are GPT-4o and Claude Sonnet 4 (refer to the Copilot [AI model comparison](https://docs.github.com/en/copilot/reference/ai-models/model-comparison)). This project serves as a template for integrating [Apache Beam](https://beam.apache.org/get-started/quickstart/python/) with [Prefect](https://docs.prefect.io/v3/get-started) on [Google Cloud](https://console.cloud.google.com/). It is designed as a foundation for building data processing pipelines with modern orchestration and data processing tools.
 
 ---
 

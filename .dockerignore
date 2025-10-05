@@ -1,0 +1,31 @@
+# Ignore everything by default
+**
+
+# Allow only the necessary files and directories
+!requirements.txt
+!pyproject.toml
+!project.cfg
+!VERSION.txt
+!src/
+
+# Ignore unnecessary files in the src directory
+src/**/*.pyc
+src/**/__pycache__/
+
+# Ignore version control directories
+.git/
+.gitignore
+
+# Ignore local environment files
+.env
+*.env
+
+# Ignore IDE/editor config files
+.vscode/
+.idea/
+*.swp
+
+# Ignore build artifacts
+build/
+dist/
+*.egg-info/

@@ -1,5 +1,7 @@
+import logging
 import os
 from typing import List, Tuple
+
 import pandas as pd
 from google.cloud import storage
 
@@ -10,6 +12,13 @@ class Process:
     def __init__(self) -> None:
         """Initialize the Process class."""
         self.gcs_client = storage.Client()
+
+        # Set up logger
+        self.logger = logging.getLogger(__name__)
+        self.logger.setLevel(logging.INFO)
+        self.logger.addHandler(logging.StreamHandler())
+
+        self.logger.info(f"Using Google Cloud Project: {self.gcs_client.project}")
 
     def extract_data(self) -> List[str]:
         """Simulate data extraction.

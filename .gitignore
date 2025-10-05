@@ -81,5 +81,5 @@ cython_debug/
 # macOS
 .DS_Store
 
-# Compiled requirements
-requirements.txt
+# Ignore local configuration overrides
+project.override.cfg

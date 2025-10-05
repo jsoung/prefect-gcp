@@ -1,0 +1,45 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}:buildtmp'
+      - '-f'
+      - 'docker/Dockerfile'
+      - '.'
+
+  - name: 'gcr.io/cloud-builders/docker'
+    entrypoint: 'bash'
+    args:
+      - -c
+      - |
+        set -euo pipefail
+
+        IMAGE="${_REGION}-docker.pkg.dev/$PROJECT_ID/${_REPO}/${_IMAGE}"
+        VERSION=$(cat VERSION.txt)
+
+        TAGS=()
+
+        if [ -n "$_TEST_TS" ]; then
+          TAGS+=("test-$_TEST_TS")
+        fi
+
+        if [ "$_BRANCH" = "main" ]; then
+          TAGS+=("main" "$$VERSION")
+        else
+          TAGS+=("$_BRANCH")
+        fi
+
+        echo "📦 Will push tags: $${TAGS[*]}"
+        for TAG in "$${TAGS[@]}"; do
+          echo "→ $$IMAGE:$$TAG"
+          docker tag "$$IMAGE:buildtmp" "$$IMAGE:$$TAG"
+          docker push "$$IMAGE:$$TAG"
+        done
+
+substitutions:
+  _REGION: us-west1
+  _REPO: dev
+  _IMAGE: ""
+  _BRANCH: ""
+  _TEST_TS: ""
