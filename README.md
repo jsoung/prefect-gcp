@@ -102,7 +102,13 @@ output = gs://your-bucket/data/output/
 dataflow.runner = DirectRunner  # Use DirectRunner for local testing
 ```
 
-## Usage
+## Docker Setup
+Build the custom container image for Dataflow, update the path to the artifact registry accordingly
+```bash
+./scripts/image_build.sh
+```
+
+## Run the pipeline
 To run the sample pipeline with `DirectRunner` on your laptop
 ```bash
 run-dataflow
@@ -115,13 +121,6 @@ To run it with Dataflow on Google Cloud, comment out the following line in `proj
 and then use the same command
 ```bash
 run-dataflow
-```
-
-## Docker Setup
-
-Build the custom container image for Dataflow:
-```bash
-./scripts/image_build.sh
 ```
 
 ## Development Notes
