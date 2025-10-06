@@ -1,5 +1,13 @@
 # Prefect-GCP
 
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![Apache Beam](https://img.shields.io/badge/Apache%20Beam-2.x-orange)
+![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Dataflow-blue)
+![Prefect](https://img.shields.io/badge/Prefect-3.x-purple)
+![Docker](https://img.shields.io/badge/Docker-supported-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![GitHub Copilot](https://img.shields.io/badge/Built%20with-GitHub%20Copilot-brightgreen)
+
 A prototype project demonstrating the integration of [Apache Beam](https://beam.apache.org/get-started/quickstart/python/) with [Prefect](https://docs.prefect.io/v3/get-started) on [Google Cloud Platform](https://console.cloud.google.com/). This project serves as a foundation for building scalable data processing pipelines with modern orchestration and distributed processing frameworks.
 
 This project was developed as an experiment using [GitHub Copilot](https://github.com/features/copilot), utilizing both GPT-4o and Claude Sonnet 4 models (see Copilot [AI model comparison](https://docs.github.com/en/copilot/reference/ai-models/model-comparison)).
@@ -15,7 +23,7 @@ prefect-gcp
 │       │   └── pipeline.py
 │       ├── data
 │       │   └── process.py
-│       └── flows
+│       └── flow
 │           └── prefect.py
 ├── tests
 │   ├── unit

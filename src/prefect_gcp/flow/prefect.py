@@ -1,74 +1,102 @@
-from prefect import task
-from apache_beam import DoFn, Pipeline, ParDo
-from apache_beam.options.pipeline_options import PipelineOptions
-from apache_beam.runners import DirectRunner, DataflowRunner
-from prefect_gcp.beam.beam_pipeline import BeamPipeline
-from mlp_conf.config import MlpConfig
-from mlp_conf.argparse import MlpArgumentParser
-import apache_beam as beam
-
-
-class MyTransform(DoFn):
-    def process(self, element):
-        # Implement your transformation logic here
-        yield element
+from prefect import task, flow
+import logging
+from prefect_gcp.beam.pipeline import Pipeline as BeamPipeline
 
 
 @task
-def run_beam_pipeline(input_data):
-    with Pipeline() as pipeline:
-        output = (
-            pipeline
-            | "Read Input" >> beam.Create(input_data)
-            | "Transform Data" >> ParDo(MyTransform())
-            # Add more transformations as needed
-        )
-    return output
+def run_beam_pipeline_task():
+    """
+    Prefect task that runs the Apache Beam pipeline.
+    
+    Returns:
+        str: Status message indicating pipeline completion.
+    """
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Initialize the Beam pipeline using your existing implementation
+        beam_pipeline = BeamPipeline()
+        
+        # Create pipeline options
+        pipeline_options = beam_pipeline.create_pipeline_options()
+        
+        # Run the pipeline
+        beam_pipeline.run_beam_pipeline(pipeline_options)
+        
+        logger.info("Beam pipeline completed successfully via Prefect")
+        return "Pipeline completed successfully"
+        
+    except Exception as e:
+        logger.error(f"Beam pipeline failed: {e}")
+        raise
 
 
-class DataflowRunner:
-    """Runs the Beam pipeline using DirectRunner or DataflowRunner."""
+@flow(name="prefect-gcp-dataflow")
+def dataflow_processing_flow():
+    """
+    Prefect flow that orchestrates the Beam pipeline execution.
+    
+    Returns:
+        str: Result from the pipeline task.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Starting Prefect flow for Beam pipeline")
+    
+    # Run the Beam pipeline as a Prefect task
+    result = run_beam_pipeline_task()
+    
+    logger.info("Prefect flow completed")
+    return result
 
-    def __init__(self, runner: str, project: str, region: str, temp_location: str):
-        self.runner = runner
-        self.project = project
-        self.region = region
-        self.temp_location = temp_location
 
-    def run(self):
-        """Run the Beam pipeline."""
-        pipeline_options = PipelineOptions(
-            runner=self.runner,
-            project=self.project,
-            region=self.region,
-            temp_location=self.temp_location,
-        )
-        with beam.Pipeline(options=pipeline_options) as pipeline:
-            BeamPipeline.build_pipeline(pipeline)
+@flow(name="prefect-gcp-batch-processing")
+def batch_processing_flow(input_files: list = None):
+    """
+    More complex Prefect flow for batch processing multiple files.
+    
+    Args:
+        input_files (list): List of input file paths to process.
+        
+    Returns:
+        list: Results from processing each file.
+    """
+    logger = logging.getLogger(__name__)
+    
+    if not input_files:
+        # Use default from configuration if no files specified
+        logger.info("No input files specified, using default configuration")
+        return run_beam_pipeline_task()
+    
+    results = []
+    for input_file in input_files:
+        logger.info(f"Processing file: {input_file}")
+        # Here you could modify the configuration dynamically
+        # or pass parameters to customize the pipeline
+        result = run_beam_pipeline_task()
+        results.append(result)
+    
+    return results
 
 
 def main():
-    # Load configuration
-    cfg = MlpConfig("project.cfg")
-
-    # Set up argument parser
-    parser = MlpArgumentParser(cfg, description="Run Apache Beam pipeline with Dataflow")
-    parser.add_argument("--runner", type=str, help="Beam runner to use (e.g., DirectRunner, DataflowRunner)")
-    parser.add_argument("--project", type=str, help="GCP project ID")
-    parser.add_argument("--region", type=str, help="GCP region")
-    parser.add_argument("--temp_location", type=str, help="GCS bucket for temporary files")
-
-    # Parse arguments
-    args = parser.parse_args()
-
-    # Run the Dataflow pipeline
-    runner = DataflowRunner(
-        runner=args.runner,
-        project=args.project,
-        region=args.region,
-        temp_location=args.temp_location,
+    """
+    Main entry point for running Prefect flows.
+    """
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    runner.run()
+    
+    logger = logging.getLogger(__name__)
+    logger.info("Starting Prefect-GCP integration")
+    
+    # Run the simple dataflow processing flow
+    try:
+        result = dataflow_processing_flow()
+        logger.info(f"Flow result: {result}")
+    except Exception as e:
+        logger.error(f"Flow failed: {e}")
+        raise
 
 
 if __name__ == "__main__":
