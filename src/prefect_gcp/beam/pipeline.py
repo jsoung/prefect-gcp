@@ -73,13 +73,20 @@ class Pipeline:
         # Base options
         options = {"runner": self.args.data_dataflow_runner}
 
-        # Add GCP-specific options only if the runner is not DirectRunner
-        if self.args.data_dataflow_runner != "DirectRunner":
+        # Add GCP-specific options only if the runner is DataflowRunner
+        if self.args.data_dataflow_runner == "DataflowRunner":
             options.update({
                 "project": self.args.project_id,
                 "region": self.args.project_region,
                 "temp_location": self.args.project_temp_location,
+                "sdk_container_image": self.args.data_dataflow_sdk_container_image,
+                "worker_harness_container_image": self.args.data_dataflow_sdk_container_image,
+                "machine_type": self.args.data_dataflow_machine_type,
+                "num_workers": self.args.data_dataflow_num_workers,
+                "max_num_workers": self.args.data_dataflow_max_num_workers,
             })
+
+        self.logger.info(f"Pipeline options for Dataflow: {options}")
 
         # Filter out None values and create PipelineOptions
         return PipelineOptions(flags=[], **{k: v for k, v in options.items() if v is not None})

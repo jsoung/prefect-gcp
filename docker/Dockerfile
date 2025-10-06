@@ -14,11 +14,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/ ./src/
 
 # Install your code in editable mode (optional)
-RUN pip install -e .
-
-# Optional: print environment info for debugging
-RUN python -V && pip list
-
-# No entrypoint needed — Dataflow handles that
-ENTRYPOINT []
-CMD []
+RUN pip install --no-cache-dir .

@@ -4,11 +4,14 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "prefect-gcp"
-version = "0.1.0"
+dynamic = ["version"]
 description = "A prototype project utilizing Apache Beam and Prefect on Google Cloud Platform."
 readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
+
+[tool.setuptools.dynamic]
+version = {file = "VERSION.txt"}
 
 [project.scripts]
 run-dataflow = "prefect_gcp.beam.pipeline:main"
