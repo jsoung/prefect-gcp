@@ -108,19 +108,77 @@ Build the custom container image for Dataflow, update the path to the artifact r
 ./scripts/image_build.sh
 ```
 
-## Run the pipeline
-To run the sample pipeline with `DirectRunner` on your laptop
+## Usage
+
+You can either run the Apache Beam pipeline directly, or use Prefect to orchistrate the pipeline as part of a workflow.
+
+### Beam Pipeline
+To run the Apache Beam pipeline directly with `DirectRunner` on your laptop:
 ```bash
 run-dataflow
 ```
 
-To run it with Dataflow on Google Cloud, comment out the following line in `project.override.cfg`
-```INI
+To run it with Dataflow on Google Cloud, comment out the following line in `project.override.cfg`:
+```ini
 ; dataflow.runner = DirectRunner
 ```
-and then use the same command
+and then use the same command:
 ```bash
 run-dataflow
+```
+
+### Prefect Orchestrated Execution
+
+This project uses the `run-prefect-flow` command to manage and orchestrate the Dataflow pipelines with Prefect.
+
+#### Run a Flow Locally
+
+To execute a flow immediately for testing or debugging, use the `run` action:
+
+Run the default 'dataflow_processing_flow'
+```bash
+run-prefect-flow run
+```
+
+Run the 'batch_processing_flow'
+```bash
+run-prefect-flow run --flow-name batch
+```
+
+#### Deploy to Prefect Server
+First, start a Prefect server (if running locally):
+```bash
+prefect server start
+```
+
+Deploy the flow:
+```bash
+prefect deploy src/prefect_gcp/flow/prefect.py:dataflow_processing_flow --name "dataflow-pipeline"
+```
+
+Run the deployed flow:
+```bash
+prefect deployment run "prefect-gcp-dataflow/dataflow-pipeline"
+```
+
+#### Monitor in Prefect UI
+Access the Prefect UI at `http://localhost:4200` to monitor flow runs, view logs, and manage deployments.
+
+#### Prefect Cloud
+If you would like to try [Prefect Cloud](https://app.prefect.cloud/account/), the steps will be similar. First, follow the instructions to create an account, a workspace, and an API key. Then
+
+```bash
+prefect cloud login -k YOUR_API_KEY
+```
+
+Make sure the setup works
+```bash
+prefect cloud workspace ls
+```
+
+And then
+```bash
+run-prefect-flow deploy --flow-name prefect-gcp-dataflow --schedule "0 5 * * *"
 ```
 
 ## Development Notes
