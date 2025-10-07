@@ -16,3 +16,4 @@ version = {file = "VERSION.txt"}
 [project.scripts]
 run-dataflow = "prefect_gcp.beam.pipeline:main"
 run-prefect-flow = "prefect_gcp.flow.prefect:main"
+run-trainer = "prefect_gcp.train.trainer:main"
