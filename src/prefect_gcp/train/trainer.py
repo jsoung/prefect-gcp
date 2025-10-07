@@ -53,7 +53,7 @@ class Trainer:
                 "replica_count": 1,
                 "container_spec": {
                     "image_uri": self.args.train_image_uri,
-                    "command": ["run-datflow"],
+                    "command": ["run-dataflow"],
                 },
             }
         ]
@@ -67,13 +67,15 @@ class Trainer:
             parallel_trial_count (int): The number of trials to run in parallel.
             sync (bool): Whether to run the job synchronously (blocking).
         """
+        # Explicitly initialize the AI Platform with the correct project and region.
+        # This overrides any potential gcloud config or SDK defaults.
+        aiplatform.init(project=self.args.project_id, location=self.args.project_region)
+
         self.logger.info(f"Initializing HyperparameterTuningJob: {self.args.train_display_name}")
 
         # Define the custom job that the tuning job will run for each trial
         custom_job = aiplatform.CustomJob(
             display_name=f"{self.args.train_display_name}-trial",
-            project=self.args.project_id,
-            location=self.args.project_region,
             worker_pool_specs=self._define_worker_pool_specs(),
             staging_bucket=self.args.project_temp_location,
         )
