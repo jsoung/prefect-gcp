@@ -1,9 +1,11 @@
 apache-beam[gcp]
-prefect
+cloudml-hypertune
 git+https://github.com/jsoung/mlp-conf.git
-google-cloud-storage
 google-cloud-bigquery
 google-cloud-pubsub
-pandas
+google-cloud-storage
 numpy
+pandas
+prefect
 pytest
+tensorflow~=2.17.0 # Pin to avoid crash in libc++abi on MacOS Apple Silicon M3

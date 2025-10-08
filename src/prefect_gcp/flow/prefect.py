@@ -1,8 +1,8 @@
 import argparse
 import logging
+import sys
 
 from prefect import flow, task
-from prefect.server.schemas.schedules import CronSchedule
 
 from prefect_gcp.beam.pipeline import Pipeline as BeamPipeline
 
@@ -90,15 +90,17 @@ def main():
     or deploy a flow to be managed and scheduled by a Prefect server.
 
     Usage:
-        python prefect.py run [--flow-name <name>]
-        python prefect.py deploy [--flow-name <name>] [--schedule "0 5 * * *"]
+        run-prefect-flow run [--flow-name <name>]
+        run-prefect-flow deploy [--flow-name <name>] [--schedule "0 5 * * *"]
     """
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__name__)
 
     parser = argparse.ArgumentParser(description="Run or deploy Prefect flows for GCP Dataflow.")
     parser.add_argument(
-        "action", choices=["run", "deploy"], help="Action to perform: 'run' the flow locally or 'deploy' it to Prefect."
+        "action",
+        choices=["run", "deploy"],
+        help="Action to perform: 'run' the flow locally or 'deploy' it to Prefect.",
     )
     parser.add_argument(
         "--flow-name",
@@ -113,6 +115,10 @@ def main():
         help="A cron string for scheduling the deployment (e.g., '0 5 * * *' for 5 AM daily).",
     )
     args = parser.parse_args()
+
+    # Remove the 'action' positional argument from sys.argv
+    # This prevents it from being passed to downstream parsers like MlpArgumentParser
+    sys.argv.pop(1)
 
     flows = {
         "dataflow": dataflow_processing_flow,
@@ -130,10 +136,14 @@ def main():
             logger.error(f"Flow run failed: {e}", exc_info=True)
             raise
 
-    elif args.action == "deploy":
-        logger.info(f"Deploying the '{selected_flow.name}' flow...")
-        schedule = CronSchedule(cron=args.schedule, timezone="UTC") if args.schedule else None
-        selected_flow.serve(name=f"deployment-{selected_flow.name}", schedule=schedule)
+    # elif args.action == "deploy":
+    #     logger.info(f"Deploying the '{selected_flow.name}' flow...")
+    #     selected_flow.deploy(
+    #         name=f"deployment-{selected_flow.name}",
+    #         work_pool_name="default-agent-pool",  # Specify a work pool if not using the default
+    #         cron=args.schedule,
+    #         timezone="UTC" if args.schedule else None,
+    #     )
 
 
 if __name__ == "__main__":

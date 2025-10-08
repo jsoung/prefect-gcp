@@ -4,7 +4,7 @@ from google.cloud import aiplatform
 from mlp_conf.argparse import MlpArgumentParser
 
 
-class Trainer:
+class Job:
     """
     A class to configure and run a Vertex AI HyperparameterTuningJob.
 
@@ -15,7 +15,7 @@ class Trainer:
 
     def __init__(self):
         """
-        Initializes the Trainer.
+        Initializes the Job.
 
         This method parses arguments from the command line and configuration files
         to set up the trainer.
@@ -28,9 +28,6 @@ class Trainer:
         return {
             "learning_rate": aiplatform.hyperparameter_tuning.DoubleParameterSpec(
                 min=self.args.train_hparam_learning_rate_min, max=self.args.train_hparam_learning_rate_max, scale="log"
-            ),
-            "momentum": aiplatform.hyperparameter_tuning.DoubleParameterSpec(
-                min=self.args.train_hparam_momentum_min, max=self.args.train_hparam_momentum_max, scale="linear"
             ),
             "num_units": aiplatform.hyperparameter_tuning.IntegerParameterSpec(
                 min=self.args.train_hparam_num_units_min, max=self.args.train_hparam_num_units_max, scale="linear"
@@ -53,12 +50,16 @@ class Trainer:
                 "replica_count": 1,
                 "container_spec": {
                     "image_uri": self.args.train_image_uri,
-                    "command": ["run-dataflow"],
+                    "command": [
+                        "run-trainer",
+                        f"--epochs={self.args.train_epochs}",
+                        f"--metric_name={self.args.train_metric_name}",
+                    ],
                 },
             }
         ]
 
-    def run(self, max_trial_count: int = 20, parallel_trial_count: int = 5, sync: bool = True):
+    def run(self, sync: bool = True):
         """
         Creates and runs the hyperparameter tuning job.
 
@@ -86,8 +87,8 @@ class Trainer:
             # hyperparameter_tuning_algorithm is deprecated and ignored. The service default is used.
             metric_spec=self._define_metric_spec(),
             parameter_spec=self._define_parameters(),
-            max_trial_count=max_trial_count,
-            parallel_trial_count=parallel_trial_count,
+            max_trial_count=self.args.train_max_trial_count,
+            parallel_trial_count=self.args.train_parallel_trial_count,
         )
 
         self.logger.info("Starting tuning job...")
@@ -102,8 +103,8 @@ def main():
     logging.basicConfig(level=logging.INFO)
     # Example usage:
     # All configuration is now loaded from project.cfg and project.override.cfg
-    trainer = Trainer()
-    trainer.run()
+    job = Job()
+    job.run()
 
 
 if __name__ == "__main__":

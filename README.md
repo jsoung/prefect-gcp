@@ -1,6 +1,7 @@
 # Prefect-GCP
 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![TensorFlow](https://img.shields.io/badge/TensorFlow-2.17.1-FF6F00?logo=tensorflow)
 ![Apache Beam](https://img.shields.io/badge/Apache%20Beam-2.x-orange)
 ![Google Cloud](https://img.shields.io/badge/Google%20Cloud-Dataflow-blue)
 ![Prefect](https://img.shields.io/badge/Prefect-3.x-purple)
@@ -182,19 +183,17 @@ run-prefect-flow deploy --flow-name prefect-gcp-dataflow --schedule "0 5 * * *"
 ```
 
 ## Development Notes
-### GitHub Copilot Experience
-This project was developed as an experiment with GitHub Copilot, providing insights into AI-assisted development:
+### AI Assistant Experience
+This project was developed as an experiment with AI coding assistants. Initially, I used GitHub Copilot, leveraging both the GPT-4o and Claude Sonnet 4 models.
 
-* **Strengths:**
-  * Excellent at generating project structure and boilerplate code
-  * Helpful for creating configuration files and documentation templates
-  * Good at suggesting Python packaging best practices
-* **Limitations:**
-  * Struggled with domain-specific Apache Beam and Dataflow configurations
-  * Required frequent reference to official documentation for complex integrations
-  * ChatGPT (outside VS Code) often provided more accurate solutions than integrated Copilot models
+* **GitHub Copilot (Paid Subscription)**:
+  * Strengths: Excellent for generating boilerplate code, project structures, and configuration templates.
+  * Limitations: Struggled with domain-specific Apache Beam and Dataflow configurations, often requiring cross-reference with official documentation. Standalone ChatGPT sometimes provided more accurate solutions.
 
-* **Key Takeaway:** While AI coding assistants excel at scaffolding and common patterns, domain expertise and official documentation remain crucial for specialized frameworks and cloud services.
+* **Gemini Code Assist (Free)**:
+  * After the initial development, I discovered and switched to Gemini Code Assist. My experience has been that it is at least as good as, if not better than, the paid Copilot offerings. It provides high-quality, context-aware assistance without a subscription fee.
+
+* **Key Takeaway & Recommendation**: While AI assistants are powerful, domain expertise remains crucial. For developers exploring this public project, I recommend starting with the free and highly capable Gemini Code Assist. Consider a paid tool only if you find a compelling, specific reason to do so.
 
 ## Resources
 * [Apache Beam Documentation](https://beam.apache.org/documentation/)
