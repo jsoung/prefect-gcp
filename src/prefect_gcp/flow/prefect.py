@@ -5,6 +5,7 @@ import sys
 from prefect import flow, task
 
 from prefect_gcp.beam.pipeline import Pipeline as BeamPipeline
+from prefect_gcp.vertex.job import Job as VertexJob
 
 
 @task
@@ -32,6 +33,27 @@ def run_beam_pipeline_task():
 
     except Exception as e:
         logger.error(f"Beam pipeline failed: {e}")
+        raise
+
+
+@task
+def run_vertex_job_task():
+    """
+    Prefect task that runs the Vertex AI hyperparameter tuning job.
+
+    Returns:
+        str: Status message indicating job completion.
+    """
+    logger = logging.getLogger(__name__)
+    try:
+        logger.info("Initializing Vertex AI job.")
+        # The VertexJob class reads its configuration from project.cfg
+        vertex_job = VertexJob()
+        vertex_job.run(sync=True)  # Run synchronously to wait for completion
+        logger.info("Vertex AI job completed successfully via Prefect.")
+        return "Vertex AI job completed successfully"
+    except Exception as e:
+        logger.error(f"Vertex AI job failed: {e}")
         raise
 
 
@@ -82,6 +104,25 @@ def batch_processing_flow(input_files: list = None):
     return results
 
 
+@flow(name="prefect-gcp-e2e-ml-pipeline")
+def e2e_ml_pipeline_flow():
+    """
+    Prefect flow that orchestrates the full ML pipeline:
+    1. Run the Beam/Dataflow job to process data.
+    2. Run the Vertex AI job to train a model.
+
+    Returns:
+        str: Final status message.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info("Starting end-to-end ML pipeline flow.")
+
+    data_processing_result = run_beam_pipeline_task()
+    training_result = run_vertex_job_task(wait_for=[data_processing_result])
+
+    return training_result
+
+
 def main():
     """
     Main entry point for running or deploying Prefect flows.
@@ -105,8 +146,8 @@ def main():
     parser.add_argument(
         "--flow-name",
         default="dataflow",
-        choices=["dataflow", "batch"],
-        help="The name of the flow to run or deploy. Defaults to 'dataflow'.",
+        choices=["dataflow", "batch", "e2e"],
+        help="The name of the flow to run or deploy. Defaults to 'dataflow'. 'e2e' for the full ML pipeline.",
     )
     parser.add_argument(
         "--schedule",
@@ -123,6 +164,7 @@ def main():
     flows = {
         "dataflow": dataflow_processing_flow,
         "batch": batch_processing_flow,
+        "e2e": e2e_ml_pipeline_flow,
     }
     selected_flow = flows[args.flow_name]
 
@@ -130,20 +172,20 @@ def main():
         logger.info(f"Running the '{selected_flow.name}' flow...")
         try:
             # For a local run, you might pass default parameters if needed
-            result = selected_flow() if args.flow_name == "dataflow" else selected_flow(input_files=[])
+            result = selected_flow()
             logger.info(f"Flow run completed with result: {result}")
         except Exception as e:
             logger.error(f"Flow run failed: {e}", exc_info=True)
             raise
 
-    # elif args.action == "deploy":
-    #     logger.info(f"Deploying the '{selected_flow.name}' flow...")
-    #     selected_flow.deploy(
-    #         name=f"deployment-{selected_flow.name}",
-    #         work_pool_name="default-agent-pool",  # Specify a work pool if not using the default
-    #         cron=args.schedule,
-    #         timezone="UTC" if args.schedule else None,
-    #     )
+    elif args.action == "deploy":
+        logger.info(f"Deploying the '{selected_flow.name}' flow...")
+        selected_flow.deploy(
+            name=f"deployment-{selected_flow.name}",
+            work_pool_name="default-agent-pool",  # Specify a work pool if not using the default
+            cron=args.schedule,
+            timezone="UTC" if args.schedule else None,
+        )
 
 
 if __name__ == "__main__":

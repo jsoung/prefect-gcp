@@ -24,18 +24,15 @@ prefect-gcp
 │       │   └── pipeline.py
 │       ├── data
 │       │   └── process.py
-│       └── flow
-│           └── prefect.py
+│       ├── flow
+│       │   └── prefect.py
+│       ├── model
+│       │   └── train.py
+│       └── vertex
+│           └── job.py
 ├── tests
 │   ├── unit
-│   │   └── test_process.py
-│   ├── scripts
-│   │   ├── test_local_file.py
-│   │   └── test_gcs_file.py
-├── configs
-│   ├── development.yaml
-│   ├── production.yaml
-│   └── staging.yaml
+│   └── adhoc
 ├── requirements.in
 ├── requirements.txt
 ├── tox.ini
@@ -128,15 +125,24 @@ and then use the same command:
 run-dataflow
 ```
 
-### Prefect Orchestrated Execution
+### Vertex AI Training Job
+To submit a hyperparameter tuning job directly to Vertex AI, you can use the run-vertex-job command. This script reads the configuration from `project.cfg` and `project.override.cfg` to define and launch the training job.
+```bash
+run-vertex-job
+```
 
-This project uses the `run-prefect-flow` command to manage and orchestrate the Dataflow pipelines with Prefect.
+### Prefect Orchestrated Execution
+This project uses the `run-prefect-flow` command to orchestrate a multi-step machine learning pipeline with Prefect. The primary flow, e2e, consists of two main steps:
+
+1. **Data Processing**: Runs a Dataflow job to process and prepare the data.
+1. **Model Training**: Runs a Vertex AI hyperparameter tuning job to train a model on the processed data.
+
+While single-step flows for data processing are also available, the main orchestration demonstrates the end-to-end workflow.
 
 #### Run a Flow Locally
-
 To execute a flow immediately for testing or debugging, use the `run` action:
 
-Run the default 'dataflow_processing_flow'
+Run the default `dataflow_processing_flow` to process data with Dataflow:
 ```bash
 run-prefect-flow run
 ```
