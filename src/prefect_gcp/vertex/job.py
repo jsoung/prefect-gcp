@@ -54,6 +54,8 @@ class Job:
                         "run-trainer",
                         f"--epochs={self.args.train_epochs}",
                         f"--metric_name={self.args.train_metric_name}",
+                        f"--train-data-path={self.args.train_input_train}",
+                        f"--test-data-path={self.args.train_input_test}",
                     ],
                 },
             }

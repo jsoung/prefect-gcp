@@ -56,6 +56,7 @@ class Pipeline:
 
         # Parse command line arguments
         self.args = MlpArgumentParser().parse_args()
+        self.data_processor = Process()
 
         # Validate required arguments
         if not self.args.data_input:
@@ -99,15 +100,23 @@ class Pipeline:
             pipeline_options (PipelineOptions): The options for the Beam pipeline.
         """
         self.logger.info("Starting the Beam pipeline...")
+
+        data_train_path = self.data_processor.download_data(self.args.data_train)
+        data_test_path = self.data_processor.download_data(self.args.data_test)
+
         try:
             with beam.Pipeline(options=pipeline_options) as p:
-                (
-                    p
-                    | "Read CSV" >> beam.io.ReadFromText(self.args.data_input, skip_header_lines=1)
-                    | "Process Data" >> beam.ParDo(DataProcessingDoFn())  # Use the ParDo class
-                    | "Write Output" >> beam.io.WriteToText(self.args.data_output)
-                )
-            self.logger.info("Beam pipeline completed successfully.")
+                # Create a branch for processing the training data
+                train_data = p | "Read Train CSV" >> beam.io.ReadFromText(data_train_path, skip_header_lines=1)
+                processed_train = train_data | "Process Train Data" >> beam.ParDo(DataProcessingDoFn())
+                processed_train | "Write Train Output" >> beam.io.WriteToText(self.args.data_train_processed)
+
+                # Create a second branch for processing the test data
+                test_data = p | "Read Test CSV" >> beam.io.ReadFromText(data_test_path, skip_header_lines=1)
+                processed_test = test_data | "Process Test Data" >> beam.ParDo(DataProcessingDoFn())
+                processed_test | "Write Test Output" >> beam.io.WriteToText(self.args.data_test_processed)
+
+            self.logger.info("Beam pipeline completed successfully")
         except Exception as e:
             self.logger.error(f"Pipeline failed with error: {e}")
             raise RuntimeError("Beam pipeline execution failed.") from e

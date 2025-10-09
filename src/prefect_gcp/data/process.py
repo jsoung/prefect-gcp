@@ -1,6 +1,8 @@
 import logging
-import os
+import tempfile
+import urllib.request
 from typing import List, Tuple
+from urllib.parse import urlparse
 
 import pandas as pd
 from google.cloud import storage
@@ -20,14 +22,6 @@ class Process:
 
         self.logger.info(f"Using Google Cloud Project: {self.gcs_client.project}")
 
-    def extract_data(self) -> List[str]:
-        """Simulate data extraction.
-
-        Returns:
-            List[str]: A list of extracted data strings.
-        """
-        return ["data1", "data2", "data3"]
-
     def transform_data(self, data: str) -> str:
         """Transform data (e.g., convert to uppercase).
 
@@ -37,54 +31,31 @@ class Process:
         Returns:
             str: The transformed data string.
         """
-        return data.upper()
+        return data
 
-    def load_data(self, file_path: str) -> pd.DataFrame:
+    def download_data(self, url: str) -> str:
         """
-        Load data from a file path (local or GCS URL).
+        Downloads data from a URL to a temporary local file.
 
         Args:
-            file_path (str): The file path to load data from. Can be a local path or a GCS URL.
+            url (str): The URL to download the data from.
 
         Returns:
-            pd.DataFrame: A pandas DataFrame containing the loaded data.
+            str: The path to the temporary local file.
         """
-        if file_path.startswith("gs://"):
-            # Handle GCS URL
-            bucket_name, blob_prefix = self._parse_gcs_path(file_path)
-            blobs = self.gcs_client.list_blobs(bucket_name, prefix=blob_prefix)
-            csv_data = []
-            for blob in blobs:
-                if blob.name.endswith(".csv"):
-                    print(f"Reading GCS file: {blob.name}")
-                    content = blob.download_as_text()
-                    csv_data.append(pd.read_csv(pd.compat.StringIO(content)))
-            return pd.concat(csv_data, ignore_index=True)
-        else:
-            # Handle local file path
-            if os.path.isdir(file_path):
-                # Read all part files in the directory
-                csv_files = [os.path.join(file_path, f) for f in os.listdir(file_path) if f.endswith(".csv")]
-                return pd.concat([pd.read_csv(f) for f in csv_files], ignore_index=True)
-            elif os.path.isfile(file_path) and file_path.endswith(".csv"):
-                # Read a single CSV file
-                return pd.read_csv(file_path)
-            else:
-                raise ValueError(f"Invalid file path: {file_path}")
-
-    def _parse_gcs_path(self, gcs_path: str) -> Tuple[str, str]:
-        """
-        Parse a GCS path into bucket name and blob prefix.
-
-        Args:
-            gcs_path (str): The GCS path (e.g., "gs://bucket-name/path/to/files").
-
-        Returns:
-            Tuple[str, str]: A tuple containing the bucket name and blob prefix.
-        """
-        if not gcs_path.startswith("gs://"):
-            raise ValueError(f"Invalid GCS path: {gcs_path}")
-        parts = gcs_path[5:].split("/", 1)
-        bucket_name = parts[0]
-        blob_prefix = parts[1] if len(parts) > 1 else ""
-        return bucket_name, blob_prefix
+        self.logger.info(f"Downloading data from {url}...")
+        try:
+            # Check if the input is a URL and download it if so.
+            # This is necessary because Beam's ReadFromText doesn't directly support HTTP.
+            # We add a User-Agent header to avoid 403 Forbidden errors from servers
+            # that block requests from default Python user agents.
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0"})
+            with tempfile.NamedTemporaryFile(delete=False, mode="w", suffix=".csv") as tmp_file:
+                with urllib.request.urlopen(req) as response:
+                    content = response.read().decode("utf-8")
+                    tmp_file.write(content)
+                self.logger.info(f"Data downloaded to temporary file: {tmp_file.name}")
+                return tmp_file.name
+        except Exception as e:
+            self.logger.error(f"Failed to download data from {url}: {e}")
+            raise
